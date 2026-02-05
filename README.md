@@ -1,21 +1,32 @@
-# ai-news-summarizer
+ai-news-summarizer
+===============
 
-python3 -m venv venv
+To run locally:
 
-### to run locally:
-```
+- Run this one time to create the virtualenv:
+
+`python3 -m venv venv`
+
+- Activate the virtualenv at the beginning of every session:
+
+```sh
 source venv/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
-Usage:
+- Usage - single URL
 
-### Single URL
-`python3 digest.py --url https://example.com/article`
+```sh
+python3 digest.py --url https://example.com/article
+```
 
-### From file
-`python3 digest.py --file my-reading-list.txt`
+- Usage - from file
 
-### Default news sources (for cron)
-`python3 digest.py`
+```sh
+python3 digest.py --file my-reading-list.txt
+```
 
+- Default news sources (for cron)
+```sh
+python3 digest.py
+```
