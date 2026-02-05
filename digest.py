@@ -73,10 +73,10 @@ def get_urls_news_sources():
     """Collect URLs from HackerNews, SlashDot, etc."""
     urls = []
     urls.extend(get_urls_hackernews())
-    # urls.extend(get_urls_slashdot())
-    # urls.extend(get_urls_devto())
-    # urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 2))
-    # urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 2))
+    urls.extend(get_urls_slashdot())
+    urls.extend(get_urls_devto())
+    urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 2))
+    urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 2))
     return urls
 
 def scrape_article(url):
@@ -91,8 +91,6 @@ def scrape_article(url):
     article_text = '\n'.join(line.strip() for line in text.splitlines() if line)
 
     if article_text:
-        # print(article_text.encode('utf-8'))
-        # print(article_text)
         pass
     else:
         print(f"FAILED ON {url}")
@@ -140,7 +138,6 @@ def main():
             traceback.print_exc()
 
     print(f"Successfully processed {len(summaries)} articles")
-    print(f"Summaries: {summaries}")
 
     if args.url or args.file:
         print(summaries)
