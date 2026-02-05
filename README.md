@@ -16,6 +16,11 @@ source venv/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
+To run the summarizer, make sure that you have an API key set locally:
+```sh
+export ANTHROPIC_API_KEY=my-key-value
+```
+
 - Usage - single URL
 
 ```sh
