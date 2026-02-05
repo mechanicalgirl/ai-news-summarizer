@@ -15,17 +15,10 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: configure git
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git checkout main
-          git fetch origin
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: 3.13
 
       - name: Install dependencies
         run: python3 -m pip install -r requirements.txt
@@ -35,6 +28,10 @@ jobs:
 
       - name: Commit summaries
         run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git checkout main
+          git fetch origin
           git add summaries/
           git diff --quiet || git commit -m "Daily digest $(date +%Y-%m-%d)"
           git push
