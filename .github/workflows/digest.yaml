@@ -29,10 +29,15 @@ jobs:
       - name: Scrape and summarize articles
         run: python3 digest.py
 
+      - name: Check what was created
+        run: |
+          ls -la summaries/
+          cat summaries/*.md || echo "No files found"
+
       - name: Commit summaries
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add summaries/
-          git diff --quiet || git commit -m "Daily digest $(date +%Y-%m-%d)"
+          git commit -m "Daily digest $(date +%Y-%m-%d)" || echo "No changes to commit"
           git push

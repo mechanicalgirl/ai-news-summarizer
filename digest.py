@@ -146,12 +146,26 @@ def main():
         print(summaries)
     else:
         today = date.today().strftime("%Y-%m-%d")
+        filepath = f"summaries/{today}.md"
+
+        print(f"About to write to: {filepath}")
+        print(f"Summaries count: {len(summaries)}")
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"Directory exists: {os.path.exists('summaries/')}")
+
+        # Create directory if it doesn't exist
+        os.makedirs('summaries', exist_ok=True)
+
         with open(f"summaries/{today}.md", 'w') as f:
-            f.write(f"# Tech Digest - {today}\n\n")
+            header = f"# Tech Digest - {today}\n\n"
+            print(f"Writing header: {header}")
+            f.write(header)
             for item in summaries:
                 f.write(f"## {item['url']}\n\n")
                 f.write(f"{item['summary']}\n\n")
                 f.write("---\n\n")
+
+        print(f"File written. Size: {os.path.getsize(filepath)} bytes")
 
 if __name__ == "__main__":
     main()
