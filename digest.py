@@ -42,7 +42,7 @@ def get_urls_slashdot():
     return urls
 
 def get_urls_hackernews():
-    limit = 10
+    limit = 5
     feed_url = 'https://news.ycombinator.com/'
     soup = BeautifulSoup(requests.get(feed_url).content, 'html.parser')
     links = soup.select('span.titleline > a')
@@ -73,10 +73,10 @@ def get_urls_news_sources():
     """Collect URLs from HackerNews, SlashDot, etc."""
     urls = []
     urls.extend(get_urls_hackernews())
-    urls.extend(get_urls_slashdot())
-    urls.extend(get_urls_devto())
-    urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 2))
-    urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 2))
+    # urls.extend(get_urls_slashdot())
+    # urls.extend(get_urls_devto())
+    # urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 2))
+    # urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 2))
     return urls
 
 def scrape_article(url):
