@@ -140,6 +140,7 @@ def main():
             traceback.print_exc()
 
     print(f"Successfully processed {len(summaries)} articles")
+    print(f"Summaries: {summaries}")
 
     if args.url or args.file:
         print(summaries)
