@@ -5,7 +5,9 @@ To run locally:
 
 - Run this one time to create the virtualenv:
 
-`python3 -m venv venv`
+```sh
+python3 -m venv venv
+```
 
 - Activate the virtualenv at the beginning of every session:
 
