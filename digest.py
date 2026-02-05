@@ -136,6 +136,10 @@ def main():
                 })
         except Exception as e:
             print(f"Error processing {url}: {e}")
+            import traceback
+            traceback.print_exc()
+
+    print(f"Successfully processed {len(summaries)} articles")
 
     if args.url or args.file:
         print(summaries)
