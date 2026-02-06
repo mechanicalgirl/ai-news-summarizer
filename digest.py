@@ -1,5 +1,6 @@
 import anthropic
 from bs4 import BeautifulSoup
+import cloudscraper
 import feedparser
 import requests
 
@@ -20,12 +21,6 @@ def get_urls(args):
 
     # Default: get urls from regular news sources
     urls = get_urls_news_sources()
-    return urls
-
-def get_urls_hackernews(limit):
-    return urls
-
-def get_urls_slashdot(limit):
     return urls
 
 def get_urls_slashdot():
@@ -58,6 +53,42 @@ def get_urls_devto():
     urls = [h for h in hrefs]
     return urls[0:limit]
 
+def get_urls_pweekly():
+    url = 'https://www.pythonweekly.com'
+    archiveurls = []
+    post_urls = []
+    scraper = cloudscraper.create_scraper()
+    html_content = scraper.get(url).text
+    soup = BeautifulSoup(html_content, 'html.parser')
+    links = soup.find_all('a')
+    for l in links:
+        if l.get('href').startswith('/p/python-weekly-issue-'):
+            archiveurls.append(l.get('href'))
+    latest_archive = url + sorted(list(set(archiveurls)), reverse=True)[0]
+    new_content = scraper.get(latest_archive).text
+    new_soup = BeautifulSoup(new_content, 'html.parser')
+    new_links = new_soup.find_all('a', class_='link')
+    for l in new_links[0:10]:
+        if not l.get('href').startswith('https://www.youtube.com'):
+            post_urls.append(l.get('href'))
+    urls = [url.split('?')[0] for url in post_urls]
+    return urls
+
+"""
+def get_urls_rabbithole():
+    url = "https://medium.com/freely-sharing-the-sum-of-all-knowledge/all"
+    scraper = cloudscraper.create_scraper()
+    html_content = scraper.get(url).text
+    soup = BeautifulSoup(html_content, 'html.parser')
+    links = soup.find_all('a', class_='cm aq cn co cp at cq au av aw ax ay az ba bb')
+    original_urls = []
+    for l in links:
+        if l.get('href').startswith('/freely-sharing-the-sum-of-all-knowledge/'):
+            original_urls.append(l.get('href'))
+    urls = ["https://medium.com"+url.split('?')[0] for url in original_urls]
+    return urls
+"""
+
 def get_urls_rss(feed_url, days_back):
     """Get recent posts from RSS feed"""
     feed = feedparser.parse(feed_url)
@@ -72,9 +103,16 @@ def get_urls_rss(feed_url, days_back):
 def get_urls_news_sources():
     """Collect URLs from HackerNews, SlashDot, etc."""
     urls = []
-    urls.extend(get_urls_hackernews())
-    urls.extend(get_urls_slashdot())
-    urls.extend(get_urls_devto())
+    day = datetime.now().weekday()
+    if day in(0, 2, 4):  # Monday, Wednesday, Friday
+        urls.extend(get_urls_hackernews())
+    elif day in(1, 3):  # Tuesday, Thursday
+        urls.extend(get_urls_slashdot())
+        urls.extend(get_urls_devto())
+    elif day == 5:  # Saturday
+        urls.extend(get_urls_pweekly())
+    else:
+        pass
     urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 2))
     urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 2))
     return urls
