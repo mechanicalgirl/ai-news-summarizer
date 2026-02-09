@@ -112,9 +112,8 @@ def get_urls_news_sources():
     elif day == 5:  # Saturday
         urls.extend(get_urls_pweekly())
     else:
-        pass
-    urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 2))
-    urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 2))
+        urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 7))
+        urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 7))
     return urls
 
 def scrape_article(url):
@@ -139,7 +138,7 @@ def summarize(text):
     client = anthropic.Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
 
     message = client.messages.create(
-        model="claude-haiku-4-5-20251001",
+        model="claude-haiku-4-5-20251001",  # approx. cost .05 - .10 per day
         max_tokens=500,
         messages=[{
             "role": "user",
