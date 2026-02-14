@@ -9,35 +9,9 @@ from datetime import date, datetime, timedelta
 import os
 import sys
 
-def get_urls(args):
-    # Single URL mode
-    if args.url:
-        return [args.url]
-
-    # File mode
-    if args.file:
-        with open(args.file, 'r') as f:
-            return [line.strip() for line in f if line.strip()]
-
-    # Default: get urls from regular news sources
-    urls = get_urls_news_sources()
-    return urls
-
-def get_urls_slashdot():
-    days_back = 1
-    feed_url = 'https://rss.slashdot.org/Slashdot/slashdotMain'
-    feed = feedparser.parse(feed_url)
-    cutoff = datetime.now() - timedelta(days=days_back)
-    original_urls = []
-    for entry in feed.entries:
-        pub_date = datetime(*entry.updated_parsed[:6])
-        if pub_date > cutoff:
-            original_urls.append(entry.link)
-    urls = [url.split('?')[0] for url in original_urls]
-    return urls
 
 def get_urls_hackernews():
-    limit = 5
+    limit = 10
     feed_url = 'https://news.ycombinator.com/'
     soup = BeautifulSoup(requests.get(feed_url).content, 'html.parser')
     links = soup.select('span.titleline > a')
@@ -74,21 +48,6 @@ def get_urls_pweekly():
     urls = [url.split('?')[0] for url in post_urls]
     return urls
 
-"""
-def get_urls_rabbithole():
-    url = "https://medium.com/freely-sharing-the-sum-of-all-knowledge/all"
-    scraper = cloudscraper.create_scraper()
-    html_content = scraper.get(url).text
-    soup = BeautifulSoup(html_content, 'html.parser')
-    links = soup.find_all('a', class_='cm aq cn co cp at cq au av aw ax ay az ba bb')
-    original_urls = []
-    for l in links:
-        if l.get('href').startswith('/freely-sharing-the-sum-of-all-knowledge/'):
-            original_urls.append(l.get('href'))
-    urls = ["https://medium.com"+url.split('?')[0] for url in original_urls]
-    return urls
-"""
-
 def get_urls_rss(feed_url, days_back):
     """Get recent posts from RSS feed"""
     feed = feedparser.parse(feed_url)
@@ -107,13 +66,29 @@ def get_urls_news_sources():
     if day in(0, 2, 4):  # Monday, Wednesday, Friday
         urls.extend(get_urls_hackernews())
     elif day in(1, 3):  # Tuesday, Thursday
-        urls.extend(get_urls_slashdot())
-        urls.extend(get_urls_devto())
+        urls.extend(get_urls_rss('https://sdtimes.com/feed/', 4))
+        urls.extend(get_urls_rss('https://feed.infoq.com/', 4))
+        urls.extend(get_urls_rss('https://www.developer-tech.com/feed/', 4))
     elif day == 5:  # Saturday
+        urls.extend(get_urls_devto())
         urls.extend(get_urls_pweekly())
+        urls.extend(get_urls_rss('https://techcrunch.com/feed/', 7))
     else:
         urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 7))
         urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 7))
+    return urls
+
+def get_urls(args):
+    # Single URL mode
+    if args.url:
+        return [args.url]
+
+    # File mode
+    if args.file:
+        with open(args.file, 'r') as f:
+            return [line.strip() for line in f if line.strip()]
+
+    urls = get_urls_news_sources()
     return urls
 
 def scrape_article(url):
@@ -155,6 +130,8 @@ def main():
     args = parser.parse_args()
 
     urls = get_urls(args)
+    for url in urls:
+        print(url)
     summaries = []
 
     for url in urls:
