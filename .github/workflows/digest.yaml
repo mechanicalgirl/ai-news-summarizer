@@ -41,3 +41,27 @@ jobs:
           git add summaries/
           git commit -m "Daily digest $(date +%Y-%m-%d)" || echo "No changes to commit"
           git push
+
+      - name: Get latest summary file content
+        id: get_file_content
+        run: |
+          # Get the latest summary file
+          latest_file=$(ls -rt summaries/ | tail -n1)
+          content=$(cat "summaries/$latest_file")
+          echo "file_content=$content" >> $GITHUB_ENV
+
+      - name: Send Email via SendGrid
+        run: |
+          curl --request POST \
+            --url https://api.sendgrid.com/v3/mail/send \
+            --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "personalizations": [{"to": [{"email": "barbara@mechanicalgirl.com"}]}],
+              "from": {"email": "barbara@mechanicalgirl.com"},
+              "subject": "Today's Summaries",
+              "content": [{
+                "type": "text/plain",
+                "value": "Content of the latest summary file:\n\n'"${{ env.file_content }}"'" 
+              }]
+            }'
