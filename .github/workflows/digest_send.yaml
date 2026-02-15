@@ -1,0 +1,47 @@
+name: Send Digest
+
+env:
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+on:
+  schedule:
+    - cron: "0 8 * * *"  # Daily at 8am
+  workflow_dispatch:     # Manual trigger for testing
+
+permissions:
+  contents: write
+
+jobs:
+  summarize-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Get latest summary file content
+        id: get_file_content
+        run: |
+          # Get the latest summary file
+          latest_file=$(ls -rt summaries/ | tail -n1)
+          # Read the content and save to a temporary file
+          cat "summaries/$latest_file" > latest_summary.txt
+          # Output the file content to workflow's output
+          echo "file_content<<EOF" >> $GITHUB_ENV
+          cat latest_summary.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Send Email via SendGrid
+        run: |
+          curl --request POST \
+            --url https://api.sendgrid.com/v3/mail/send \
+            --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "personalizations": [{"to": [{"email": "barbara@mechanicalgirl.com"}]}],
+              "from": {"email": "barbara@mechanicalgirl.com"},
+              "subject": "Today's Summaries",
+              "content": [{
+                "type": "text/plain",
+                "value": "Content of the latest summary file:\n\n'"${{ env.file_content }}"'" 
+              }]
+            }'
