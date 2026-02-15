@@ -1,12 +1,7 @@
 name: Send Digest
 
-env:
-  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-
 on:
-  schedule:
-    - cron: "0 8 * * *"  # Daily at 8am
-  workflow_dispatch:     # Manual trigger for testing
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -26,13 +21,15 @@ jobs:
         run: |
           latest_file=$(ls -rt summaries/ | tail -n1)
           content=$(cat "summaries/$latest_file")
-          sanitized_content=$(echo "$content" | jq -R -s .)
-          # sanitized_content=$(printf '%s' "$content" | jq -R .)
-          echo "file_content=${sanitized_content}" >> $GITHUB_ENV
+          # Don't pre-sanitize - let jq handle it in the next step
+          # Use a delimiter to safely pass multiline content
+          echo "file_content<<EOF" >> $GITHUB_ENV
+          echo "$content" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Send Email via SendGrid
         run: |
-          # Construct the JSON payload
+          # Let jq handle the escaping directly from the raw content
           json_payload=$(jq -n \
           --arg to "barbara@mechanicalgirl.com" \
           --arg from "barbara@mechanicalgirl.com" \
@@ -45,7 +42,6 @@ jobs:
               content: [{ type: "text/html", value: $content }]
           }')
 
-          # Send the email
           curl --request POST \
             --url https://api.sendgrid.com/v3/mail/send \
             --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
