@@ -19,7 +19,7 @@ jobs:
       - name: Send Email via SendGrid
         run: |
           # Get the latest file
-          ls summaries/ | sort | tail -n1
+          latest_file=$(ls summaries/ | sort | tail -n1)
           
           # Build JSON payload using jq with file input
           json_payload=$(jq -n \
