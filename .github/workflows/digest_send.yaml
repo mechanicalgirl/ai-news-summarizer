@@ -26,8 +26,8 @@ jobs:
         run: |
           latest_file=$(ls -rt summaries/ | tail -n1)
           content=$(cat "summaries/$latest_file")
-          # Escape single quotes and newlines
-          sanitized_content=$(printf '%s' "$content" | jq -R .)
+          sanitized_content=$(echo "$content" | jq -R -s .)
+          # sanitized_content=$(printf '%s' "$content" | jq -R .)
           echo "file_content=${sanitized_content}" >> $GITHUB_ENV
 
       - name: Send Email via SendGrid
