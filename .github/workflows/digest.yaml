@@ -47,8 +47,12 @@ jobs:
         run: |
           # Get the latest summary file
           latest_file=$(ls -rt summaries/ | tail -n1)
-          content=$(cat "summaries/$latest_file")
-          echo "file_content=$content" >> $GITHUB_ENV
+          # Read the content and save to a temporary file
+          cat "summaries/$latest_file" > latest_summary.txt
+          # Output the file content to workflow's output
+          echo "file_content<<EOF" >> $GITHUB_ENV
+          cat latest_summary.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Send Email via SendGrid
         run: |
