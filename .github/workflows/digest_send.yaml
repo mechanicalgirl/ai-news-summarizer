@@ -26,21 +26,28 @@ jobs:
         run: |
           latest_file=$(ls -rt summaries/ | tail -n1)
           content=$(cat "summaries/$latest_file")
-          sanitized_content=$(echo "$content" | jq -R -s .)
+          # Escape single quotes and newlines
+          sanitized_content=$(printf '%s' "$content" | jq -R .)
           echo "file_content=${sanitized_content}" >> $GITHUB_ENV
 
       - name: Send Email via SendGrid
         run: |
+          # Construct the JSON payload
+          json_payload=$(jq -n \
+          --arg to "barbara@mechanicalgirl.com" \
+          --arg from "barbara@mechanicalgirl.com" \
+          --arg subject "Latest Summary File" \
+          --arg content "${{ env.file_content }}" \
+          '{
+              personalizations: [{ to: [{ email: $to }] }],
+              from: { email: $from },
+              subject: $subject,
+              content: [{ type: "text/html", value: $content }]
+          }')
+
+          # Send the email
           curl --request POST \
             --url https://api.sendgrid.com/v3/mail/send \
             --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
             --header 'Content-Type: application/json' \
-            --data '{
-              "personalizations": [{"to": [{"email": "barbara@mechanicalgirl.com"}]}],
-              "from": {"email": "barbara@mechanicalgirl.com"},
-              "subject": "Today's Summaries",
-              "content": [{
-                "type": "text/plain",
-                "value": "'"${{ env.file_content }}"'"
-              }]
-            }'
+            --data "$json_payload"
