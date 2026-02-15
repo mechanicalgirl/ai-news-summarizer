@@ -31,7 +31,7 @@ jobs:
                 personalizations: [{ to: [{ email: $to }] }],
                 from: { email: $from },
                 subject: $subject,
-                content: [{ type: "text/html", value: $content }]
+                content: [{ type: "text/plain", value: $content }]
             }')
 
           curl --request POST \
