@@ -15,7 +15,7 @@ def get_urls_hackernews():
     feed_url = 'https://news.ycombinator.com/'
     soup = BeautifulSoup(requests.get(feed_url).content, 'html.parser')
     links = soup.select('span.titleline > a')
-    urls = [link['href'] for link in links]
+    urls = [(link['href'], "Hacker News") for link in links]
     return urls[0:limit]
 
 def get_urls_devto():
@@ -24,7 +24,7 @@ def get_urls_devto():
     soup = BeautifulSoup(requests.get(url).content, 'html.parser')
     elements= soup.find_all('a', class_='crayons-story__hidden-navigation-link')
     hrefs = [element['href'] for element in elements if 'href' in element.attrs]
-    urls = [h for h in hrefs]
+    urls = [(h, "Dev.To") for h in hrefs]
     return urls[0:limit]
 
 def get_urls_pweekly():
@@ -45,18 +45,19 @@ def get_urls_pweekly():
     for l in new_links[0:10]:
         if not l.get('href').startswith('https://www.youtube.com'):
             post_urls.append(l.get('href'))
-    urls = [url.split('?')[0] for url in post_urls]
+    urls = [(url.split('?')[0], 'Python Weekly') for url in post_urls]
     return urls
 
 def get_urls_rss(feed_url, days_back):
     """Get recent posts from RSS feed"""
-    feed = feedparser.parse(feed_url)
+    d = feedparser.parse(feed_url)
+    source = d.feed.title
     cutoff = datetime.now() - timedelta(days=days_back)
     urls = []
-    for entry in feed.entries:
+    for entry in d.entries:
         pub_date = datetime(*entry.published_parsed[:6])
         if pub_date > cutoff:
-            urls.append(entry.link)
+            urls.append((entry.link, source))
     return urls
 
 def get_urls_news_sources():
@@ -66,7 +67,7 @@ def get_urls_news_sources():
     if day in(0, 2, 4):  # Monday, Wednesday, Friday
         urls.extend(get_urls_hackernews())
     elif day in(1, 3):  # Tuesday, Thursday
-        urls.extend(get_urls_rss('https://sdtimes.com/feed/', 4))
+        # urls.extend(get_urls_rss('https://sdtimes.com/feed/', 4))
         urls.extend(get_urls_rss('https://feed.infoq.com/', 4))
         urls.extend(get_urls_rss('https://www.developer-tech.com/feed/', 4))
     elif day == 5:  # Saturday
@@ -81,12 +82,12 @@ def get_urls_news_sources():
 def get_urls(args):
     # Single URL mode
     if args.url:
-        return [args.url]
+        return [(args.url, 'SOURCE')]
 
     # File mode
     if args.file:
         with open(args.file, 'r') as f:
-            return [line.strip() for line in f if line.strip()]
+            return [(line.strip(), "SOURCE") for line in f if line.strip()]
 
     urls = get_urls_news_sources()
     return urls
@@ -131,19 +132,20 @@ def main():
 
     urls = get_urls(args)
     for url in urls:
-        print(url)
+        print(url[0], url[1])
     summaries = []
 
     for url in urls:
-        print(f"Processing {url}")
+        print(f"Processing {url[0]}")
         try:
-            article_text = scrape_article(url)
+            article_text = scrape_article(url[0])
             if 'Enable JavaScript and cookies to continue' in article_text:
                 pass
             else:
                 summary = summarize(article_text)
                 summaries.append({
-                    'url': url,
+                    'url': url[0],
+                    'source': url[1],
                     'summary': summary
                 })
         except Exception as e:
@@ -173,6 +175,7 @@ def main():
             f.write(header)
             for item in summaries:
                 f.write(f"## {item['url']}\n\n")
+                f.write(f"{item['source']}\n\n")
                 f.write(f"{item['summary']}\n\n")
                 f.write("---\n\n")
 
