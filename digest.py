@@ -65,6 +65,7 @@ def get_urls_news_sources():
     urls = []
     day = datetime.now().weekday()
     if day in(0, 2, 4):  # Monday, Wednesday, Friday
+        urls.extend(get_urls_rss('https://stackoverflow.blog/feed', 2))
         urls.extend(get_urls_hackernews())
     elif day in(1, 3):  # Tuesday, Thursday
         urls.extend(get_urls_rss('https://feed.infoq.com/', 4))
