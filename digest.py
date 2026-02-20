@@ -67,15 +67,15 @@ def get_urls_news_sources():
     if day in(0, 2, 4):  # Monday, Wednesday, Friday
         urls.extend(get_urls_hackernews())
     elif day in(1, 3):  # Tuesday, Thursday
-        # urls.extend(get_urls_rss('https://sdtimes.com/feed/', 4))
         urls.extend(get_urls_rss('https://feed.infoq.com/', 4))
         urls.extend(get_urls_rss('https://www.developer-tech.com/feed/', 4))
+        urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 4))
     elif day == 5:  # Saturday
         urls.extend(get_urls_devto())
         urls.extend(get_urls_pweekly())
         urls.extend(get_urls_rss('https://techcrunch.com/feed/', 7))
     else:
-        urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 7))
+        urls.extend(get_urls_rss('https://lucumr.pocoo.org/feed.xml', 7))
         urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 7))
     return urls
 
