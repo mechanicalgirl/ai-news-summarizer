@@ -70,7 +70,6 @@ def get_urls_news_sources():
     elif day in(1, 3):  # Tuesday, Thursday
         urls.extend(get_urls_rss('https://feed.infoq.com/', 4))
         urls.extend(get_urls_rss('https://www.developer-tech.com/feed/', 4))
-        urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 4))
     elif day == 5:  # Saturday
         urls.extend(get_urls_devto())
         urls.extend(get_urls_pweekly())
@@ -78,6 +77,7 @@ def get_urls_news_sources():
     else:
         urls.extend(get_urls_rss('https://lucumr.pocoo.org/feed.xml', 7))
         urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 7))
+        urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 7))
     return urls
 
 def get_urls(args):
@@ -174,12 +174,15 @@ def main():
             header = f"# Tech Digest - {today}\n\n"
             print(f"Writing header: {header}")
             f.write(header)
-            for item in summaries:
-                f.write(f"## {item['url']}\n\n")
-                f.write(f"{item['source']}\n\n")
-                f.write(f"{item['summary']}\n\n")
-                f.write("---\n\n")
-
+            if summaries:
+                for item in summaries:
+                    f.write(f"## {item['url']}\n\n")
+                    f.write(f"{item['source']}\n\n")
+                    f.write(f"{item['summary']}\n\n")
+                    f.write("---\n\n")
+                else:
+                    f.write("---\n\n")
+                    f.write("No summaries for {today}\n\n")
         print(f"File written. Size: {os.path.getsize(filepath)} bytes")
 
 if __name__ == "__main__":
