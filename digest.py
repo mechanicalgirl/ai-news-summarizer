@@ -12,19 +12,25 @@ import sys
 
 def get_urls_hackernews():
     limit = 10
+    urls = []
     feed_url = 'https://news.ycombinator.com/'
     soup = BeautifulSoup(requests.get(feed_url).content, 'html.parser')
     links = soup.select('span.titleline > a')
-    urls = [(link['href'], "Hacker News") for link in links]
+    for link in links:
+        title = str(link).split('>')[1].split('<')[0]
+        urls.append((link['href'], "Hacker News", title))
     return urls[0:limit]
 
 def get_urls_devto():
     limit = 5
-    url = 'https://dev.to/top/day'
-    soup = BeautifulSoup(requests.get(url).content, 'html.parser')
-    elements= soup.find_all('a', class_='crayons-story__hidden-navigation-link')
-    hrefs = [element['href'] for element in elements if 'href' in element.attrs]
-    urls = [(h, "Dev.To") for h in hrefs]
+    urls = []
+    feed_url = 'https://dev.to/top/day'
+    soup = BeautifulSoup(requests.get(feed_url).content, 'html.parser')
+    links = soup.find_all('a', class_='crayons-story__hidden-navigation-link')
+    for link in links:
+        if 'href' in link.attrs:
+            title = str(link).split('>')[1].split('<')[0]
+            urls.append((link['href'], "Dev.To", title))
     return urls[0:limit]
 
 def get_urls_pweekly():
@@ -42,10 +48,16 @@ def get_urls_pweekly():
     new_content = scraper.get(latest_archive).text
     new_soup = BeautifulSoup(new_content, 'html.parser')
     new_links = new_soup.find_all('a', class_='link')
-    for l in new_links[0:10]:
-        if not l.get('href').startswith('https://www.youtube.com'):
-            post_urls.append(l.get('href'))
-    urls = [(url.split('?')[0], 'Python Weekly') for url in post_urls]
+
+    ignore_list = ['youtube.com', 'meetup.com', 'github.com', 'ubscrib']
+    full_list = [link for link in new_links]
+    C = [x for x in full_list if any(b in str(x).lower() for b in ignore_list)]
+    nn_links = set(full_list) - set(C)
+    for link in nn_links:
+        title = str(link).split('>')[1].split('<')[0]
+        if title:
+            post_urls.append((link.get('href').split('?')[0],'Python Weekly', title))
+    urls = post_urls
     return urls
 
 def get_urls_rss(feed_url, days_back):
@@ -57,7 +69,7 @@ def get_urls_rss(feed_url, days_back):
     for entry in d.entries:
         pub_date = datetime(*entry.published_parsed[:6])
         if pub_date > cutoff:
-            urls.append((entry.link, source))
+            urls.append((entry.link.split('?')[0], source, entry.title))
     return urls
 
 def get_urls_news_sources():
@@ -132,8 +144,6 @@ def main():
     args = parser.parse_args()
 
     urls = get_urls(args)
-    for url in urls:
-        print(url[0], url[1])
     summaries = []
 
     for url in urls:
@@ -143,10 +153,14 @@ def main():
             if 'Enable JavaScript and cookies to continue' in article_text:
                 pass
             else:
-                summary = summarize(article_text)
+                if url[1] == 'Developer Tech News':
+                    summary = 'links only'
+                else:
+                    summary = summarize(article_text)
                 summaries.append({
                     'url': url[0],
                     'source': url[1],
+                    'title': url[2],
                     'summary': summary
                 })
         except Exception as e:
@@ -176,13 +190,13 @@ def main():
             f.write(header)
             if summaries:
                 for item in summaries:
-                    f.write(f"## {item['url']}\n\n")
-                    f.write(f"{item['source']}\n\n")
+                    f.write(f"### {item['title']} - ({item['source']})\n\n")
+                    f.write(f"{item['url']}\n\n")
                     f.write(f"{item['summary']}\n\n")
                     f.write("---\n\n")
-                else:
-                    f.write("---\n\n")
-                    f.write("No summaries for {today}\n\n")
+            else:
+                f.write("---\n\n")
+                f.write(f"No summaries for {today}\n\n")
         print(f"File written. Size: {os.path.getsize(filepath)} bytes")
 
 if __name__ == "__main__":
