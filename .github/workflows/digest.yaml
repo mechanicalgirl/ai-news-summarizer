@@ -54,7 +54,7 @@ jobs:
           json_payload=$(jq -n \
             --arg to "barbara@mechanicalgirl.com" \
             --arg from "barbara@mechanicalgirl.com" \
-            --arg subject "Latest Summary File" \
+            --arg subject "Daily Tech Summary" \
             --rawfile content "summaries/$latest_file" \
             '{
                 personalizations: [{ to: [{ email: $to }] }],
