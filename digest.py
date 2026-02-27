@@ -95,12 +95,12 @@ def get_urls_news_sources():
 def get_urls(args):
     # Single URL mode
     if args.url:
-        return [(args.url, 'SOURCE')]
+        return [(args.url, 'SOURCE', 'TITLE')]
 
     # File mode
     if args.file:
         with open(args.file, 'r') as f:
-            return [(line.strip(), "SOURCE") for line in f if line.strip()]
+            return [(line.strip(), 'SOURCE', 'TITLE') for line in f if line.strip()]
 
     urls = get_urls_news_sources()
     return urls
