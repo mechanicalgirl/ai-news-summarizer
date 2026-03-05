@@ -141,37 +141,52 @@ def main():
     parser = argparse.ArgumentParser(description='Scrape and summarize articles')
     parser.add_argument('--url', help='Single URL to process')
     parser.add_argument('--file', help='Text file with URLs (one per line)')
+    parser.add_argument('--textfile', help='Text file with plain text to process')
     args = parser.parse_args()
 
-    urls = get_urls(args)
     summaries = []
 
-    for url in urls:
-        print(f"Processing {url[0]}")
-        try:
-            article_text = scrape_article(url[0])
-            if 'Enable JavaScript and cookies to continue' in article_text:
-                pass
-            else:
-                if url[1] == 'Developer Tech News':
-                    summary = 'links only'
+    if args.textfile:
+        with open(args.textfile, 'r') as f:
+            article_text = f.read()
+        summary = summarize(article_text)
+        summaries.append({
+            'filename': args.textfile,
+            'summary': summary
+        })
+    else:
+        urls = get_urls(args)
+        for url in urls:
+            print(f"Processing {url[0]}")
+            try:
+                article_text = scrape_article(url[0])
+                if 'Enable JavaScript and cookies to continue' in article_text:
+                    pass
                 else:
-                    summary = summarize(article_text)
-                summaries.append({
-                    'url': url[0],
-                    'source': url[1],
-                    'title': url[2],
-                    'summary': summary
-                })
-        except Exception as e:
-            print(f"Error processing {url}: {e}")
-            import traceback
-            traceback.print_exc()
+                    if url[1] == 'Developer Tech News':
+                        summary = 'links only'
+                    else:
+                        summary = summarize(article_text)
+                    summaries.append({
+                        'url': url[0],
+                        'source': url[1],
+                        'title': url[2],
+                        'summary': summary
+                    })
+            except Exception as e:
+                print(f"Error processing {url}: {e}")
+                import traceback
+                traceback.print_exc()
 
-    print(f"Successfully processed {len(summaries)} articles")
+        print(f"Successfully processed {len(summaries)} articles")
 
-    if args.url or args.file:
-        print(summaries)
+    if args.url:
+        print(summaries[0]['summary'])
+    elif args.file:
+        for s in summaries:
+            print(s['url'], '\n', s['summary'], '\n\n')
+    elif args.textfile:
+        print(summaries[0]['summary'])
     else:
         today = date.today().strftime("%Y-%m-%d")
         filepath = f"summaries/{today}.md"

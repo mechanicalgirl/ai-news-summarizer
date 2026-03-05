@@ -1,6 +1,7 @@
 .DS_Store
 NOTES.txt
 test.py
+sources/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

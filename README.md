@@ -27,10 +27,16 @@ export ANTHROPIC_API_KEY=my-key-value
 python3 digest.py --url https://example.com/article
 ```
 
-- Usage - from file
+- Usage - from file containing links
 
 ```sh
 python3 digest.py --file my-reading-list.txt
+```
+
+- Usage - from file containing text
+
+```sh
+python3 digest.py --textfile path/to/mytext.txt
 ```
 
 - Default news sources (for cron)
