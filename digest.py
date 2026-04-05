@@ -84,13 +84,12 @@ def get_urls_news_sources():
         urls.extend(get_urls_rss('https://www.developer-tech.com/feed/', 4))
         urls.extend(get_urls_rss('https://www.oreilly.com/radar/feed/', 4))
     elif day == 5:  # Saturday
-        urls.extend(get_urls_devto())
+        # urls.extend(get_urls_devto())
         urls.extend(get_urls_pweekly())
-        urls.extend(get_urls_rss('https://techcrunch.com/feed/', 7))
     else:
+        urls.extend(get_urls_rss('https://techcrunch.com/feed/', 7))
         urls.extend(get_urls_rss('https://lucumr.pocoo.org/feed.xml', 7))
         urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 7))
-        urls.extend(get_urls_rss('https://simonwillison.net/atom/everything/', 7))
     return urls
 
 def get_urls(args):
