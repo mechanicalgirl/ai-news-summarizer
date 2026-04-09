@@ -81,7 +81,7 @@ def get_urls_news_sources():
         urls.extend(get_urls_hackernews())
     elif day in(1, 3):  # Tuesday, Thursday
         urls.extend(get_urls_rss('https://feed.infoq.com/', 4))
-        urls.extend(get_urls_rss('https://www.developer-tech.com/feed/', 4))
+        # urls.extend(get_urls_rss('https://www.developer-tech.com/feed/', 4))
         urls.extend(get_urls_rss('https://www.oreilly.com/radar/feed/', 4))
     elif day == 5:  # Saturday
         # urls.extend(get_urls_devto())
