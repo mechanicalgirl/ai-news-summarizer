@@ -16,9 +16,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
-
       - name: Set up Homebrew
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@main
@@ -27,26 +24,17 @@ jobs:
         run: |
           brew install resend/cli/resend
 
+      - name: Fetch and read the latest Markdown file
+        id: read_file
+        run: |
+          latest_file=$(ls summaries/ | sort | tail -n1)
+          file_content=$(cat summaries/$latest_file)
+          echo "content=$file_content" >> $GITHUB_OUTPUT
+
       - name: Send Email via Resend
         run: |
-          # Get the latest file
-          latest_file=$(ls summaries/ | sort | tail -n1)
-          
-          # Build JSON payload using jq with file input
-          json_payload=$(jq -n \
-            --arg to "barbara@mechanicalgirl.com" \
-            --arg from "barbara@mechanicalgirl.com" \
-            --arg subject "Latest Summary File" \
-            --rawfile content "summaries/$latest_file" \
-            '{
-                personalizations: [{ to: [{ email: $to }] }],
-                from: { email: $from },
-                subject: $subject,
-                content: [{ type: "text/plain", value: $content }]
-            }')
-
           resend --api-key ${{ secrets.RESEND_API_KEY }} emails send \
             --from "FeedMe <noreply@feedme-reader.com>" \
             --to barbara@mechanicalgirl.com \
             --subject "Latest Summary File" \
-            --text-file "$json_payload"
+            --text-file ${{ steps.read_file.outputs.content }}
