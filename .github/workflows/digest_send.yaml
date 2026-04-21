@@ -16,10 +16,10 @@ jobs:
       - name: Install jq
         run: sudo apt-get install -y jq
 
-      - Install resend
+      - name: Install resend
         run: curl -fsSL https://resend.com/install.sh | bash
 
-      - Resend login
+      - name: Resend login
         run: resend login
 
       - name: Send Email via Resend
