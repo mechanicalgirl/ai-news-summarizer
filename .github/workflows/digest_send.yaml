@@ -29,13 +29,15 @@ jobs:
         run: |
           latest_file=$(ls summaries/ | sort | tail -n1)
           file_content=$(cat summaries/$latest_file)
-          echo "content=$file_content" >> $GITHUB_OUTPUT
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$file_content" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Send Email via Resend
         run: |
-          echo ${{ steps.read_file.outputs.content }}
+          echo "${{ steps.read_file.outputs.content }}"
           resend --api-key ${{ secrets.RESEND_API_KEY }} emails send \
             --from "FeedMe <noreply@feedme-reader.com>" \
             --to barbara@mechanicalgirl.com \
             --subject "Latest Summary File" \
-            --text ${{ steps.read_file.outputs.content }}
+            --text "${{ steps.read_file.outputs.content }}"
