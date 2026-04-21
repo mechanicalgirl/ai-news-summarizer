@@ -3,6 +3,9 @@ name: Send Digest
 on:
   workflow_dispatch:
 
+env:
+  RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+
 permissions:
   contents: write
 
@@ -16,13 +19,13 @@ jobs:
       - name: Install jq
         run: sudo apt-get install -y jq
 
-      - name: Install resend
-        run: curl -fsSL https://resend.com/install.sh | bash
-
-      - name: Resend login
+      - name: Install Homebrew
         run: |
-          source ~/.bashrc
-          resend login --key ${{ secrets.RESEND_API_KEY }}
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+      - name: Install Packages
+        run: |
+          brew install resend/cli/resend
 
       - name: Send Email via Resend
         run: |
