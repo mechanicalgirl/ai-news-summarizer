@@ -24,19 +24,11 @@ jobs:
         run: |
           brew install resend/cli/resend
 
-      - name: Fetch and read the latest Markdown file
-        id: read_file
-        run: |
-          latest_file=$(ls summaries/ | sort | tail -n1)
-          file_content=$(cat summaries/$latest_file)
-          echo "content<<EOF" >> $GITHUB_OUTPUT
-          echo "$file_content" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Send Email via Resend
         run: |
-          resend emails send \
+          latest_file=$(ls summaries/ | sort | tail -n1)
+          resend --api-key ${{ secrets.RESEND_API_KEY }} emails send \
             --from "FeedMe <noreply@feedme-reader.com>" \
             --to barbara@mechanicalgirl.com \
             --subject "Latest Summary File" \
-            --text "${{ steps.read_file.outputs.content }}"
+            --text-file summaries/$latest_file
