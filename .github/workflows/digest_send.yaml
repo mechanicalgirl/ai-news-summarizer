@@ -33,6 +33,7 @@ jobs:
 
       - name: Send Email via Resend
         run: |
+          echo ${{ steps.read_file.outputs.content }}
           resend --api-key ${{ secrets.RESEND_API_KEY }} emails send \
             --from "FeedMe <noreply@feedme-reader.com>" \
             --to barbara@mechanicalgirl.com \
