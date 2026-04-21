@@ -1,4 +1,4 @@
-name: Send Digest
+name: Send Digest Testing
 
 on:
   workflow_dispatch:
