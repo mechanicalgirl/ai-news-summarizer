@@ -16,7 +16,13 @@ jobs:
       - name: Install jq
         run: sudo apt-get install -y jq
 
-      - name: Send Email via SendGrid
+      - Install resend
+        run: curl -fsSL https://resend.com/install.sh | bash
+
+      - Resend login
+        run: resend login
+
+      - name: Send Email via Resend
         run: |
           # Get the latest file
           latest_file=$(ls summaries/ | sort | tail -n1)
@@ -34,8 +40,8 @@ jobs:
                 content: [{ type: "text/plain", value: $content }]
             }')
 
-          curl --request POST \
-            --url https://api.sendgrid.com/v3/mail/send \
-            --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
-            --header 'Content-Type: application/json' \
-            --data "$json_payload"
+          resend --api-key ${{ secrets.RESEND_API_KEY }} emails send \
+            --from "FeedMe <noreply@feedme-reader.com>" \
+            --to barbara@mechanicalgirl.com \
+            --subject "Latest Summary File" \
+            --attachment "$json_payload"
