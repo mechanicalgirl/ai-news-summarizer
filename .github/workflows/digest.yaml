@@ -2,6 +2,7 @@ name: Tech News Digest
 
 env:
   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
 on:
   schedule:
@@ -42,29 +43,20 @@ jobs:
           git commit -m "Daily digest $(date +%Y-%m-%d)" || echo "No changes to commit"
           git push
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@main
 
-      - name: Send Email via SendGrid
+      - name: Install Resend Packages
         run: |
-          # Get the latest file
-          latest_file=$(ls summaries/ | sort | tail -n1)
-          
-          # Build JSON payload using jq with file input
-          json_payload=$(jq -n \
-            --arg to "barbara@mechanicalgirl.com" \
-            --arg from "barbara@mechanicalgirl.com" \
-            --arg subject "Daily Tech Summary" \
-            --rawfile content "summaries/$latest_file" \
-            '{
-                personalizations: [{ to: [{ email: $to }] }],
-                from: { email: $from },
-                subject: $subject,
-                content: [{ type: "text/plain", value: $content }]
-            }')
+          brew install resend/cli/resend
 
-          curl --request POST \
-            --url https://api.sendgrid.com/v3/mail/send \
-            --header "Authorization: Bearer ${{ secrets.SENDGRID_API_KEY }}" \
-            --header 'Content-Type: application/json' \
-            --data "$json_payload"
+      - name: Send Email via Resend
+        run: |
+          latest_file=$(ls summaries/ | sort | tail -n1)
+          resend --api-key ${{ secrets.RESEND_API_KEY }} emails send \
+            --from "FeedMe <noreply@feedme-reader.com>" \
+            --to barbara@mechanicalgirl.com \
+            --subject "Latest Summary File" \
+            --text-file summaries/$latest_file
+
