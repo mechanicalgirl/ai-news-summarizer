@@ -37,4 +37,4 @@ jobs:
             --from "FeedMe <noreply@feedme-reader.com>" \
             --to barbara@mechanicalgirl.com \
             --subject "Latest Summary File" \
-            --text-file ${{ steps.read_file.outputs.content }}
+            --text ${{ steps.read_file.outputs.content }}
