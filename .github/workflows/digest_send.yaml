@@ -20,7 +20,9 @@ jobs:
         run: curl -fsSL https://resend.com/install.sh | bash
 
       - name: Resend login
-        run: resend login
+        run: |
+          source ~/.bashrc
+          resend login --key ${{ secrets.RESEND_API_KEY }}
 
       - name: Send Email via Resend
         run: |
