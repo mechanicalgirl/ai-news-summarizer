@@ -181,7 +181,7 @@ def main():
         print(f"Successfully processed {len(summaries)} articles")
 
     if args.url:
-        print(summaries[0]['summary'])
+        print(summaries)
     elif args.file:
         for s in summaries:
             print(s['url'], '\n', s['summary'], '\n\n')
