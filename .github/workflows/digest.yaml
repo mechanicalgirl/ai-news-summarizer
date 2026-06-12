@@ -48,7 +48,10 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@main
 
       - name: Install Resend Packages
+        env:
+          HOMEBREW_NO_SANDBOX_LINUX: "1"
         run: |
+          brew update
           brew install resend/cli/resend
 
       - name: Send Email via Resend
