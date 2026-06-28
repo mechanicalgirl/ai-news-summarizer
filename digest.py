@@ -76,20 +76,21 @@ def get_urls_news_sources():
     """Collect URLs from HackerNews, SlashDot, etc."""
     urls = []
     day = datetime.now().weekday()
-    if day in(0, 2, 4):  # Monday, Wednesday, Friday
+    if day in(0, 2):  # Monday, Wednesday
         urls.extend(get_urls_rss('https://stackoverflow.blog/feed', 2))
         urls.extend(get_urls_hackernews())
     elif day in(1, 3):  # Tuesday, Thursday
         urls.extend(get_urls_rss('https://feed.infoq.com/', 4))
         # urls.extend(get_urls_rss('https://www.developer-tech.com/feed/', 4))
         urls.extend(get_urls_rss('https://www.oreilly.com/radar/feed/', 4))
-    elif day == 5:  # Saturday
+    elif day == 4:  # Friday
         # urls.extend(get_urls_devto())
         urls.extend(get_urls_pweekly())
-    else:
         urls.extend(get_urls_rss('https://techcrunch.com/feed/', 7))
         urls.extend(get_urls_rss('https://lucumr.pocoo.org/feed.xml', 7))
         urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 7))
+    else:
+        # pass - no more summaries to read on the weekends
     return urls
 
 def get_urls(args):
