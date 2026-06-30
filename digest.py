@@ -62,6 +62,7 @@ def get_urls_pweekly():
 
 def get_urls_rss(feed_url, days_back):
     """Get recent posts from RSS feed"""
+    print(f"Parsing {feed_url}")
     d = feedparser.parse(feed_url)
     source = d.feed.title
     cutoff = datetime.now() - timedelta(days=days_back)
@@ -90,7 +91,7 @@ def get_urls_news_sources():
         urls.extend(get_urls_rss('https://lucumr.pocoo.org/feed.xml', 7))
         urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 7))
     else:
-        # pass - no more summaries to read on the weekends
+        pass #no more summaries to read on the weekends
     return urls
 
 def get_urls(args):
