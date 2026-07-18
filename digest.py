@@ -89,7 +89,7 @@ def get_urls_news_sources():
         urls.extend(get_urls_pweekly())
         urls.extend(get_urls_rss('https://techcrunch.com/feed/', 7))
         urls.extend(get_urls_rss('https://lucumr.pocoo.org/feed.xml', 7))
-        urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 7))
+        # urls.extend(get_urls_rss('https://techblog.wikimedia.org/feed/', 7))
     else:
         pass #no more summaries to read on the weekends
     return urls
