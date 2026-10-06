@@ -68,7 +68,7 @@ def get_urls_rss(feed_url, days_back):
     cutoff = datetime.now() - timedelta(days=days_back)
     urls = []
     for entry in d.entries:
-        pub_date = datetime(*entry.published_parsed[:6])
+        pub_date = datetime(*entry.published_parsed[:6]) if entry.published_parsed else datetime.min
         if pub_date > cutoff:
             urls.append((entry.link.split('?')[0], source, entry.title))
     return urls
